@@ -17,6 +17,8 @@ app.listen(port, () => {
 
 const client = new Client();
 
+let lastSentDate = null;
+
 function parseDailyDeals(embed) {
     const text =
         embed.description ||
@@ -74,11 +76,14 @@ let lastMessageId = null;
 
 async function sendDailyDeals(items, messageId) {
 
-    if (messageId === lastMessageId) {
+    const today = new Date().toDateString();
+
+    if (lastSentDate === today) {
         console.log("Уже отправляли сегодня");
         return;
     }
 
+    lastSentDate = today;
     lastMessageId = messageId;
 
     const now = new Date();
@@ -108,19 +113,29 @@ async function checkDailyDeals() {
     const hours = now.getHours();
     const minutes = now.getMinutes();
 
-    // GMT+3 → 03:00
     const isWindow = (hours === 2 && minutes >= 58) || (hours === 3 && minutes <= 2);
 
-    if (!isWindow) {
-        console.log("Не время Daily Deals");
+    const today = now.toDateString();
+
+    // если уже отправляли сегодня — выходим
+    if (lastSentDate === today) {
+        console.log("Уже отправляли сегодня");
         return;
     }
 
-    console.log("Проверка Daily Deals...");
+    // если не окно — но ещё не отправляли → fallback
+    if (!isWindow) {
+        console.log("Не окно, но проверяем (fallback)");
+    } else {
+        console.log("Окно Daily Deals");
+    }
 
     const data = await fetchDailyDeals();
 
-    if (!data || !data.items.length) return;
+    if (!data || !data.items.length) {
+        console.log("Нет данных");
+        return;
+    }
 
     await sendDailyDeals(data.items, data.messageId);
 }
