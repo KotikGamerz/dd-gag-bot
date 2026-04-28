@@ -3,6 +3,7 @@ require('dotenv').config();
 const { Client } = require('discord.js-selfbot-v13');
 const axios = require('axios');
 const express = require('express');
+const fs = require('fs').promises;
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -17,7 +18,27 @@ app.listen(port, () => {
 
 const client = new Client();
 
-let lastSentDate = null;
+let lastMessageId = null;
+
+async function loadState() {
+    try {
+        const data = await fs.readFile('state.json', 'utf8');
+        const parsed = JSON.parse(data);
+
+        lastMessageId = parsed.lastMessageId || null;
+
+        console.log("📂 Состояние загружено");
+    } catch {
+        console.log("🆕 Новый state");
+    }
+}
+
+async function saveState() {
+    await fs.writeFile(
+        'state.json',
+        JSON.stringify({ lastMessageId }, null, 2)
+    );
+}
 
 function parseDailyDeals(embed) {
     const text =
@@ -47,7 +68,7 @@ function parseDailyDeals(embed) {
 }
 
 async function fetchDailyDeals() {
-    const channel = client.channels.cache.get(process.env.SOURCE_CHANNEL_ID);
+    const channel = await client.channels.fetch(process.env.SOURCE_CHANNEL_ID);
 
     if (!channel) {
         console.log("Канал не найден");
@@ -72,19 +93,12 @@ async function fetchDailyDeals() {
     };
 }
 
-let lastMessageId = null;
-
 async function sendDailyDeals(items, messageId) {
 
-    const today = new Date().toDateString();
-
-    if (lastSentDate === today) {
-        console.log("Уже отправляли сегодня");
+    if (messageId === lastMessageId) {
+        console.log("Уже отправляли этот сток");
         return;
     }
-
-    lastSentDate = today;
-    lastMessageId = messageId;
 
     const now = new Date();
 
@@ -100,9 +114,14 @@ async function sendDailyDeals(items, messageId) {
         timestamp: now.toISOString()
     };
 
+    // 🚀 сначала отправляем
     await axios.post(process.env.WEBHOOK_URL, {
         embeds: [embed]
     });
+
+    // 💾 потом сохраняем (ВАЖНО)
+    lastMessageId = messageId;
+    await saveState();
 
     console.log("Daily Deals отправлены!");
 }
@@ -120,19 +139,18 @@ async function checkDailyDeals() {
         return;
     }
 
-    const today = now.toDateString();
-
-    if (lastSentDate === today) {
-        console.log("Уже отправляли сегодня");
-        return;
-    }
-
     console.log("Окно Daily Deals — проверяем...");
 
     const data = await fetchDailyDeals();
 
     if (!data || !data.items.length) {
         console.log("Нет данных");
+        return;
+    }
+
+    // 🔒 защита от дубля (самое важное)
+    if (data.messageId === lastMessageId) {
+        console.log("Этот сток уже отправляли");
         return;
     }
 
@@ -169,8 +187,11 @@ function startScheduler() {
     scheduleNext();
 }
 
-client.on('ready', () => {
+client.on('ready', async () => {
     console.log(`Залогинен как ${client.user.tag}`);
+
+    await loadState();
+
     console.log("Daily Deals scheduler запущен");
 
     startScheduler();
