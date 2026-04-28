@@ -115,20 +115,19 @@ async function checkDailyDeals() {
 
     const isWindow = (hours === 2 && minutes >= 58) || (hours === 3 && minutes <= 2);
 
+    if (!isWindow) {
+        console.log("Не время Daily Deals");
+        return;
+    }
+
     const today = now.toDateString();
 
-    // если уже отправляли сегодня — выходим
     if (lastSentDate === today) {
         console.log("Уже отправляли сегодня");
         return;
     }
 
-    // если не окно — но ещё не отправляли → fallback
-    if (!isWindow) {
-        console.log("Не окно, но проверяем (fallback)");
-    } else {
-        console.log("Окно Daily Deals");
-    }
+    console.log("Окно Daily Deals — проверяем...");
 
     const data = await fetchDailyDeals();
 
