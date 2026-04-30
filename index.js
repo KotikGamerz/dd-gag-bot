@@ -132,7 +132,7 @@ async function checkDailyDeals() {
     const hours = now.getHours();
     const minutes = now.getMinutes();
 
-    const isWindow = (hours === 2 && minutes >= 58) || (hours === 3 && minutes <= 2);
+    const isWindow = (hours === 0 && minutes <= 2);
 
     if (!isWindow) {
         console.log("Не время Daily Deals");
