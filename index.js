@@ -85,7 +85,8 @@ function parseGamepassStock(embed) {
 
     for (const line of text.split('\n')) {
 
-        const cleanLine = line.trim();
+        const cleanLine =
+            line.replace(/^•\s*/, '').trim();
 
         const match = cleanLine.match(
             /^(\S+)\s+(.+?)\s+x(\d+)$/i
