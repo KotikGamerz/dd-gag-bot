@@ -301,7 +301,7 @@ function startScheduler() {
         const now = new Date();
         const seconds = now.getSeconds();
 
-        const targets = [5, 20, 35, 50];
+        const targets = [20, 35, 50];
 
         let targetSecond =
             targets.find(t => t > seconds);
@@ -332,8 +332,8 @@ function startScheduler() {
 
             // 🌱 Daily Deals
             if (
-                (currentSeconds >= 5 && currentSeconds < 10) ||
-                (currentSeconds >= 35 && currentSeconds < 40)
+                currentSeconds >= 35 &&
+                currentSeconds < 40
             ) {
                 await checkDailyDeals();
             }
