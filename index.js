@@ -206,7 +206,7 @@ async function sendGamepassStock(items, messageId) {
     const now = new Date();
 
     const embed = {
-        title: "🎟️ GROW A GARDEN | GAMEPASS STOCK",
+        title: "🎟️ GROW A GARDEN | PASS STOCK",
         color: 0xff9900,
         description: items
             .map(i =>
