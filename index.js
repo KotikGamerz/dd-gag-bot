@@ -23,6 +23,9 @@ let state = {
     gamepassMessageId: null
 };
 
+const ENABLE_DAILY_DEALS = true;
+const ENABLE_GAMEPASS_STOCK = false;
+
 async function loadState() {
     try {
         const data = await fs.readFile('state.json', 'utf8');
@@ -324,14 +327,16 @@ function startScheduler() {
 
             // 🎟️ Gamepass
             if (
-                (currentSeconds >= 20 && currentSeconds < 25) ||
-                (currentSeconds >= 50 && currentSeconds < 55)
+                ENABLE_GAMEPASS_STOCK &&
+                currentSeconds >= 20 &&
+                currentSeconds < 25
             ) {
                 await checkGamepassStock();
             }
 
             // 🌱 Daily Deals
             if (
+                ENABLE_DAILY_DEALS &&
                 currentSeconds >= 35 &&
                 currentSeconds < 40
             ) {
