@@ -24,7 +24,7 @@ let state = {
 };
 
 const ENABLE_DAILY_DEALS = true;
-const ENABLE_GAMEPASS_STOCK = false;
+const ENABLE_GAMEPASS_STOCK = true;
 
 async function loadState() {
     try {
