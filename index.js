@@ -50,6 +50,29 @@ async function saveState() {
     );
 }
 
+async function sendToWebhooks(payload, urls) {
+
+    const results = await Promise.allSettled(
+        urls.filter(Boolean).map(url =>
+            axios.post(url, payload)
+        )
+    );
+
+    results.forEach((result, index) => {
+
+        if (result.status === 'fulfilled') {
+            console.log(`✅ Webhook #${index + 1} отправлен`);
+        } else {
+            console.error(
+                `❌ Webhook #${index + 1} ошибка:`,
+                result.reason?.message
+            );
+        }
+
+    });
+
+}
+
 function parseDailyDeals(embed) {
     const text =
         embed.description ||
@@ -188,9 +211,15 @@ async function sendDailyDeals(items, messageId) {
     };
 
     // 🚀 сначала отправляем
-    await axios.post(process.env.WEBHOOK_URL, {
-        embeds: [embed]
-    });
+    await sendToWebhooks(
+        {
+            embeds: [embed]
+        },
+        [
+            process.env.WEBHOOK_URL,
+            process.env.KIRO_WEBHOOK_URL
+        ]
+    );
 
     // 💾 потом сохраняем (ВАЖНО)
     state.dailyDealsMessageId = messageId;
@@ -225,11 +254,14 @@ async function sendGamepassStock(items, messageId) {
         timestamp: now.toISOString()
     };
 
-    await axios.post(
-        process.env.GAMEPASS_WEBHOOK_URL,
+    await sendToWebhooks(
         {
             embeds: [embed]
-        }
+        },
+        [
+            process.env.GAMEPASS_WEBHOOK_URL,
+            process.env.KIRO_WEBHOOK_URL
+        ]
     );
 
     state.gamepassMessageId = messageId;
