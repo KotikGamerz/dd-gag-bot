@@ -23,6 +23,10 @@ let state = {
     gamepassMessageId: null
 };
 
+const PASS_ROLE_IDS = {
+    "Pinkfruit Palm": "1254102353368584395"
+};
+
 const ENABLE_DAILY_DEALS = true;
 const ENABLE_GAMEPASS_STOCK = true;
 
@@ -254,15 +258,29 @@ async function sendGamepassStock(items, messageId) {
         timestamp: now.toISOString()
     };
 
-    await sendToWebhooks(
-        {
-            embeds: [embed]
-        },
-        [
-            process.env.GAMEPASS_WEBHOOK_URL,
-            process.env.KIRO_WEBHOOK_URL
-        ]
+    const hasPinkfruitPalm = items.some(
+        i => i.name === "Pinkfruit Palm"
     );
+
+    const pingText = hasPinkfruitPalm
+        ? `<@&${PASS_ROLE_IDS["Pinkfruit Palm"]}>`
+        : undefined;
+
+    await Promise.allSettled([
+        axios.post(
+            process.env.GAMEPASS_WEBHOOK_URL,
+            {
+                content: pingText,
+                embeds: [embed]
+            }
+        ),
+        axios.post(
+            process.env.KIRO_WEBHOOK_URL,
+            {
+                embeds: [embed]
+            }
+        )
+    ]);
 
     state.gamepassMessageId = messageId;
 
