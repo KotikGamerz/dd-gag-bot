@@ -263,13 +263,13 @@ async function sendGamepassStock(items, messageId) {
         timestamp: now.toISOString()
     };
 
-    const hasPinkfruitPalm = items.some(
-        i => i.name === "Pinkfruit Palm"
-    );
-
-    const pingText = hasPinkfruitPalm
-        ? `<@&${PASS_ROLE_IDS["Pinkfruit Palm"]}>`
-        : undefined;
+    const pingText = [
+        ...new Set(
+            items
+                .filter(i => PASS_ROLE_IDS[i.name])
+                .map(i => `<@&${PASS_ROLE_IDS[i.name]}>`)
+        )
+    ].join(' ') || undefined;
 
     await Promise.allSettled([
         axios.post(
