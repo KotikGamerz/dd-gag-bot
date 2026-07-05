@@ -24,7 +24,12 @@ let state = {
 };
 
 const PASS_ROLE_IDS = {
-    "Pinkfruit Palm": "1254102353368584395"
+    "Season 6 Crate": "1520562363273711708",
+    "Smith Hammer of Harvest": "1510908214378631218",
+    "Season 6 Pack": "1510908220661567519",
+    "Floodlight": "1510908217624887387",
+    "Grow All": "1510908228001595504",
+    "Queen Fruit": "1510908231810285598"
 };
 
 const ENABLE_DAILY_DEALS = true;
