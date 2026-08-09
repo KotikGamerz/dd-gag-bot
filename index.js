@@ -24,12 +24,13 @@ let state = {
 };
 
 const PASS_ROLE_IDS = {
-    "Season 6 Crate": "1520562363273711708",
+    "Season 7 Crate": "1520562363273711708",
     "Smith Hammer of Harvest": "1510908214378631218",
-    "Season 6 Pack": "1510908220661567519",
-    "Floodlight": "1510908217624887387",
+    "Season 7 Pack": "1510908220661567519",
+    "Anchor": "1510908217624887387",
+    "Levelup Lollipop": "1536042666456780932",
     "Grow All": "1510908228001595504",
-    "Queen Fruit": "1510908231810285598"
+    "Spirecrest": "1510908231810285598"
 };
 
 const ENABLE_DAILY_DEALS = true;
